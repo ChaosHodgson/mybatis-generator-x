@@ -1,0 +1,18 @@
+package ${package_daoImpl};
+import ${package_model}.${className};
+import com.application.dao.impl.BaseDaoImpl;
+import org.springframework.stereotype.Repository;
+import ${package_dao}.${className}Dao;
+
+@Repository("${modelName}Dao")
+public class ${className}DaoImpl extends BaseDaoImpl<${className}> implements ${className}Dao {
+
+public ${className}DaoImpl() {
+super(${className}.class);
+}
+#if($nameUtils.hasField($properties, "code"))
+public ${className} getByCode(String code) {
+return (${className}) readTemplate.queryForObject(modelName + ".getByCode", code);
+}
+#end
+}

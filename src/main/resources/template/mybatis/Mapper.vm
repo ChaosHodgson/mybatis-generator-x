@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="${className}">
+    <!--define return map -->
+    <resultMap id="BaseResultMap" type="${className}">
+        #foreach($p in $properties)
+                <result column="${p.columnName}" property="${p.name}" jdbcType="#if(
+            "${p.columnTypeName}" == "DATETIME")TIMESTAMP"
+                        #elseif(${p.columnTypeName} == "INT")INTEGER"#else${p.columnTypeName}"#end/>
+        #end
+    </resultMap>
+
+    <sql id="Base_Columns">
+        #foreach($p in $properties)`${p.columnName}`#if($velocityCount != $properties.size()),#end#end
+
+    </sql>
+
+    <sql id="Where_Clause">
+        <where>
+            #foreach($p in $properties)
+                #if($p.name == "id")
+                    <if test="${p.name} != null">`${p.columnName}`=#{${p.name},jdbcType=${p.columnTypeName}}</if>
+                #elseif($nameUtils.isTypeIsString($p.columnTypeName))
+                    <if test="${p.name} != null and ${p.name} != ''"> AND `${p.columnName}`=#{${p.name},jdbcType=#if(
+                        "${p.columnTypeName}" == "DATETIME")TIMESTAMP#elseif(${p.columnTypeName} == "INT")
+                        INTEGER#else${p.columnTypeName}#end}
+                    </if>
+                #else
+                    <if test="${p.name} != null">AND `${p.columnName}`=#{${p.name},jdbcType=#if(
+                        "${p.columnTypeName}" == "DATETIME")TIMESTAMP#elseif(${p.columnTypeName} == "INT")
+                        INTEGER#else${p.columnTypeName}#end}
+                    </if>
+                #end
+            #end
+
+            <if test="isAdv">
+                #foreach($p in $properties)
+                    #if($nameUtils.isTypeIsString($p.columnTypeName))
+                        <if test="${p.name}XLike != null and ${p.name} != ''">AND `${p.columnName}` LIKE
+                            CONCAT('%',#{${p.name}XLike},'%')
+                        </if>
+                    #elseif( $nameUtils.isTypeIsDate($p.columnTypeName) || $nameUtils.isTypeIsNumber($p.columnTypeName) )
+                        <if test="${p.name}XMin != null"> AND `${p.columnName}` &gt;= #{${p.name}XMin}</if>
+                        <if test="${p.name}XMax != null"> AND `${p.columnName}` &lt;= #{${p.name}XMax}</if>
+                    #elseif($nameUtils.isTypeIsInteger($p.columnTypeName))
+                        <if test="${p.name}XIn != null and ${p.name}Xin.size > 0"> AND `${p.columnName}` IN
+                            <foreach collection="${p.name}XIn" item="${p.name}" open="(" close=")" separator=",">
+                                #{${p.name}Xin}
+                            </foreach>
+                        </if>
+                    #end
+                #end
+            </if>
+        </where>
+    </sql>
+
+    <sql id="Where_Clause_Param">
+        <where>
+            #foreach($p in $properties)
+                #if($p.name == "id")
+                    <if test="param.${p.name} != null">
+                        `${p.columnName}`=#{param.${p.name},jdbcType=${p.columnTypeName}}
+                    </if>
+                #elseif($nameUtils.isTypeIsString($p.columnTypeName))
+                    <if test="param.${p.name} != null and ${p.name} != ''"> AND `${p.columnName}`=#{param.${p.name},jdbcType=#if(
+                        "${p.columnTypeName}" == "DATETIME")TIMESTAMP#elseif(${p.columnTypeName} == "INT")
+                        INTEGER#else${p.columnTypeName}#end}
+                    </if>
+                #else
+                    <if test="param.${p.name} != null">AND `${p.columnName}`=#{param.${p.name},jdbcType=#if(
+                        "${p.columnTypeName}" == "DATETIME")TIMESTAMP#elseif(${p.columnTypeName} == "INT")
+                        INTEGER#else${p.columnTypeName}#end}
+                    </if>
+                #end
+            #end
+
+            <if test="param.isAdv">
+                #foreach($p in $properties)
+                    #if($nameUtils.isTypeIsString($p.columnTypeName))
+                        <if test="param.${p.name}XLike != null and ${p.name} != ''">AND `${p.columnName}` LIKE
+                            CONCAT('%',#{param.${p.name}XLike},'%')
+                        </if>
+                    #elseif( $nameUtils.isTypeIsDate($p.columnTypeName) || $nameUtils.isTypeIsNumber($p.columnTypeName) )
+                        <if test="param.${p.name}XMin != null"> AND `${p.columnName}` &gt;= #{param.${p.name}XMin}</if>
+                        <if test="param.${p.name}XMax != null"> AND `${p.columnName}` &lt;= #{param.${p.name}XMax}</if>
+                    #elseif($nameUtils.isTypeIsInteger($p.columnTypeName))
+                        <if test="param.${p.name}XIn != null and ${p.name}Xin.size > 0"> AND `${p.columnName}` IN
+                            <foreach collection="param.${p.name}XIn" item="${p.name}" open="(" close=")" separator=",">
+                                #{param.${p.name}Xin}
+                            </foreach>
+                        </if>
+                    #end
+                #end
+            </if>
+        </where>
+    </sql>
+
+    <select id="count" parameterType="${className}" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM `${tableName}`
+        <include refid="Where_Clause"/>
+    </select>
+
+    <select id="queryById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Columns"/>
+        FROM `${tableName}`
+        WHERE `id`= #{$id,jdbcType=BIGINT}
+    </select>
+
+    <select id="queryByProperty" parameterType="${className}" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Columns"/>
+        FROM `${tableName}`
+        <include refid="Where_Clause"/>
+        ORDER BY `id` DESC LIMIT 0,1
+    </select>
+
+    <select id="queryListByProperty" parameterType="${className}" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Columns"/>
+        FROM `${tableName}`
+        <include refid="Where_Clause"/>
+        <if test="orderBy != null">ORDER BY ${orderBy}</if>
+    </select>
+
+    <select id="queryPageByProperty" parameterType="java.util.HashMap" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Columns"/>
+        FROM `${tableName}`
+        <include refid="Where_Clause"/>
+        <if test="orderBy != null">ORDER BY ${param.orderBy}</if>
+        LIMIT #{page.rows}, #{page.offset}
+    </select>
+
+    <!-- when prop not null will be padding-->
+    <insert id="insert" parameterType="${className}">
+        INSERT INTO `${tableName}`(#foreach($p in $properties)
+        #if($p.columnName ==
+            "id")#else#*#elseif($nameUtils.isTypeIsString($p.columnTypeName))<if test="${p.name} != null and ${p.name} != ''">`${p.columnName}`,</if>*#
+            `${p.columnName}`#if($velocityCount != $properties.size())
+                ,#end#*<if test="${p.name} != null">AND `${p.columnName}`,</if>*##end
+    #end)
+        VALUES (#foreach($p in $properties)
+        #if($p.name ==
+            "id")#else#*#elseif($nameUtils.isTypeIsString($p.columnTypeName))<if test="${p.name} != null and ${p.name} != ''"> #{${p.name}},</if>*#
+            #{${p.name},jdbcType=#if("${p.columnTypeName}" == "DATETIME")TIMESTAMP#elseif(${p.columnTypeName} == "INT")
+                INTEGER#else${p.columnTypeName}#end}#if($velocityCount != $properties.size())
+                ,#end#*<if test="${p.name} != null">#{${p.name}},</if>*##end
+    #end)
+    </insert>
+
+    <update id="update" parameterType="${className}">
+        UPDATE `${tableName}` SET
+        #foreach($p in $properties)
+            #if($p.columnName == "id")#elseif($nameUtils.isTypeIsString($p.columnTypeName))
+                <if test="${p.name} != null and ${p.name} != ''">`${p.columnName}`=#{${p.name},jdbcType=#if(
+                    "${p.columnTypeName}" == "DATETIME")TIMESTAMP#elseif(${p.columnTypeName} == "INT")
+                    INTEGER#else${p.columnTypeName}#end}#if($velocityCount != $properties.size()),#end</if>
+            #else
+                <if test="${p.name} != null">`${p.columnName}`=#{${p.name},jdbcType=#if(
+                    "${p.columnTypeName}" == "DATETIME")TIMESTAMP#elseif(${p.columnTypeName} == "INT")
+                    INTEGER#else${p.columnTypeName}#end}#if($velocityCount != $properties.size()),#end</if>
+            #end#end
+        WHERE `id`=#{$id,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateByProperty" parameterType="java.util.HashMap">
+        UPDATE `${tableName}` SET
+        #foreach($p in $properties)
+            #if($p.columnName == "id")#elseif($nameUtils.isTypeIsString($p.columnTypeName))
+                <if test="value.${p.name} != null and value.${p.name} != ''">`${p.columnName}`=#{value.${p.name},jdbcType=#if(
+                    "${p.columnTypeName}" == "DATETIME")TIMESTAMP#elseif(${p.columnTypeName} == "INT")
+                    INTEGER#else${p.columnTypeName}#end}#if($velocityCount != $properties.size()),#end</if>
+            #else
+                <if test="value.${p.name} != null">`${p.columnName}`=#{value.${p.name},jdbcType=#if(
+                    "${p.columnTypeName}" == "DATETIME")TIMESTAMP#elseif(${p.columnTypeName} == "INT")
+                    INTEGER#else${p.columnTypeName}#end}#if($velocityCount != $properties.size()),#end</if>
+            #end#end
+        <include refid="Where_Clause_Param"></include>
+    </update>
+    <delete id="delete" parameterType="java.lang.Long" flushCache="true">
+        DELETE FROM `${tableName}`
+        WHERE `id`=#{$id,,jdbcType=BIGINT}
+    </delete>
+</mapper>

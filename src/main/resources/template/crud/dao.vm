@@ -1,0 +1,9 @@
+package ${package_dao};
+import ${package_model}.${className};
+import com.application.dao.BaseDao;
+
+public interface ${className}Dao extends BaseDao<${className}> {
+#if ($nameUtils.hasField($properties, "code"))
+public ${className} getByCode(String code);
+#end
+}

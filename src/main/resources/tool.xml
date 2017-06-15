@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<tools>
+    <toolbox scope="application">
+        <tool key="nameUtils" class="com.loess.tools.util.PropertyNameUtil"/>
+    </toolbox>
+</tools>

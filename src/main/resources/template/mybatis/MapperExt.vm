@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="${className}">
+
+    <select id="queryOneCustom" parameterMap="java.util.HashMap" resultType="${tagetClass}">
+        SELECT #{$fields}
+        FROM #{$tables}
+        WHERE #{$conditions}
+        LIMIT 0,1
+    </select>
+
+    <select id="queryListCustom" parameterMap="java.util.HashMap" resultType="${tagetClass}">
+        SELECT #{$fields}
+        FROM #{$tables}
+        WHERE #{$conditions}
+        <if test="orderBy != null">ORDER BY ${orderBy}</if>
+    </select>
+
+    <select id="queryPageCustom" parameterMap="java.util.HashMap" resultType="${tagetClass}">
+        SELECT #{$fields}
+        FROM #{$tables}
+        WHERE #{$conditions}
+        <if test="orderBy != null">ORDER BY ${orderBy}</if>
+        LIMIT #{page.rows}, #{page.offset}
+    </select>
+</mapper>

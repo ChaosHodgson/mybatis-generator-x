@@ -1,0 +1,76 @@
+package $!{qoPath};
+import ${package_model}.${nameUtils.getClassName(${tableInfo.tableName})};
+
+public class ${nameUtils.getClassName(${tableInfo.tableName})}Adv extends ${nameUtils.getClassName(${tableInfo.tableName})} {
+private boolean isAdv = true;
+private String orderBy;
+#foreach($columnInfo in $tableInfo.columnInfos)
+    #if($nameUtils.isTypeIsString($columnInfo.columnTypeName))
+    private ${nameUtils.getJavaType($columnInfo)} ${nameUtils.getPropertyName($columnInfo.columnName)}XLike;
+    #end
+    #if($nameUtils.isTypeIsDate($columnInfo.columnTypeName) || $nameUtils.isTypeIsNumber($columnInfo.columnTypeName))
+    private ${nameUtils.getJavaType($columnInfo)} ${nameUtils.getPropertyName($columnInfo.columnName)}XMin;
+    private ${nameUtils.getJavaType($columnInfo)} ${nameUtils.getPropertyName($columnInfo.columnName)}XMax;
+    #end
+    #if($nameUtils.isTypeIsInteger($columnInfo.columnTypeName))
+    private java.util.List<${nameUtils.getJavaType($columnInfo)}> ${nameUtils.getPropertyName($columnInfo.columnName)}XIn;
+    #end
+#end
+#foreach($columnInfo in $tableInfo.columnInfos)
+    #if($nameUtils.isTypeIsString($columnInfo.columnTypeName))
+    public ${nameUtils.getJavaType($columnInfo)} get${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}XLike(){
+    return ${nameUtils.getPropertyName($columnInfo.columnName)}XLike;
+    }
+    public void set${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}XLike(${nameUtils.getJavaType($columnInfo)} ${nameUtils.getPropertyName($columnInfo.columnName)}XLike){
+    this.${nameUtils.getPropertyName($columnInfo.columnName)}XLike = ${nameUtils.getPropertyName($columnInfo.columnName)}XLike;
+    }
+    #end
+    #if($nameUtils.isTypeIsDate($columnInfo.columnTypeName) || $nameUtils.isTypeIsNumber($columnInfo.columnTypeName))
+    public ${nameUtils.getJavaType($columnInfo)} get${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}XMin(){
+    return ${nameUtils.getPropertyName($columnInfo.columnName)}XMin;
+    }
+    public void set${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}XMin(${nameUtils.getJavaType($columnInfo)} ${nameUtils.getPropertyName($columnInfo.columnName)}XMin){
+    this.${nameUtils.getPropertyName($columnInfo.columnName)}XMin = ${nameUtils.getPropertyName($columnInfo.columnName)}XMin;
+    }
+    public ${nameUtils.getJavaType($columnInfo)} get${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}XMax(){
+    return ${nameUtils.getPropertyName($columnInfo.columnName)}XMax;
+    }
+    public void set${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}XMax(${nameUtils.getJavaType($columnInfo)} ${nameUtils.getPropertyName($columnInfo.columnName)}XMax){
+    this.${nameUtils.getPropertyName($columnInfo.columnName)}XMax = ${nameUtils.getPropertyName($columnInfo.columnName)}XMax;
+    }#*    public ${nameUtils.getJavaType($columnInfo)} get${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}XAfterMax(){
+        return ${nameUtils.getPropertyName($columnInfo.columnName)}XAfterMax;
+    }
+    public void set${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}XAfterMax(${nameUtils.getJavaType($columnInfo)} ${nameUtils.getPropertyName($columnInfo.columnName)}XAfterMax){
+        this.${nameUtils.getPropertyName($columnInfo.columnName)}XAfterMax = ${nameUtils.getPropertyName($columnInfo.columnName)}XAfterMax;
+    }*#
+        #if($nameUtils.isPrice($columnInfo))
+        public Double get${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}OriginalXMin(){
+        return ${nameUtils.getPropertyName($columnInfo.columnName)}XMin!=null ? new java.math.BigDecimal(${nameUtils.getPropertyName($columnInfo.columnName)}XMin).divide(new java.math.BigDecimal("100"), 2, java.math.BigDecimal.ROUND_HALF_UP).doubleValue() : null;
+        }
+        public void set${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}OriginalXMin(Double p){
+        this.${nameUtils.getPropertyName($columnInfo.columnName)}XMin = p!=null ? new java.math.BigDecimal(p).setScale(2, java.math.BigDecimal.ROUND_HALF_UP).multiply(new java.math.BigDecimal("100")).longValue() : null;
+        }
+        public Double get${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}OriginalXMax(){
+        return ${nameUtils.getPropertyName($columnInfo.columnName)}XMax!=null ? new java.math.BigDecimal(${nameUtils.getPropertyName($columnInfo.columnName)}XMax).divide(new java.math.BigDecimal("100"), 2, java.math.BigDecimal.ROUND_HALF_UP).doubleValue() : null;
+        }
+        public void set${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}OriginalXMax(Double p){
+        this.${nameUtils.getPropertyName($columnInfo.columnName)}XMax = p!=null ? new java.math.BigDecimal(p).setScale(2, java.math.BigDecimal.ROUND_HALF_UP).multiply(new java.math.BigDecimal("100")).longValue() : null;
+        }
+        #end
+    #end
+    #if($nameUtils.isTypeIsInteger($columnInfo.columnTypeName))
+    public java.util.List<${nameUtils.getJavaType($columnInfo)}> get${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}XIn(){
+    return ${nameUtils.getPropertyName($columnInfo.columnName)}XIn;
+    }
+    public void set${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}XIn(java.util.List<${nameUtils.getJavaType($columnInfo)}> ${nameUtils.getPropertyName($columnInfo.columnName)}XIn){
+    this.${nameUtils.getPropertyName($columnInfo.columnName)}XIn = ${nameUtils.getPropertyName($columnInfo.columnName)}XIn;
+    }
+    #end
+#end
+public String getOrderBy(){
+return orderBy;
+}
+public void setOrderBy(String orderBy){
+this.orderBy = orderBy;
+}
+}

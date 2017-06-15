@@ -1,0 +1,31 @@
+package $!{package};
+/**
+* $!{tableInfo.comment}
+**/
+public class ${nameUtils.getClassName(${tableInfo.tableName})} extends DomainObject{
+#foreach($columnInfo in $tableInfo.columnInfos)
+/** $!columnInfo.comment #if($nameUtils.isPrice($columnInfo))  #end**/
+private ${nameUtils.getJavaType($columnInfo)} ${nameUtils.getPropertyName($columnInfo.columnName)};
+    #if($nameUtils.isPrice($columnInfo))
+    // $!columnInfo.comment
+    //private Double ${nameUtils.getPropertyName($columnInfo.columnName)}Original;
+    #end
+#end
+#foreach($columnInfo in $tableInfo.columnInfos)
+##	/** $!columnInfo.comment **/
+public ${nameUtils.getJavaType($columnInfo)} get${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}(){
+return ${nameUtils.getPropertyName($columnInfo.columnName)};
+}
+public void set${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}(${nameUtils.getJavaType($columnInfo)} ${nameUtils.getPropertyName($columnInfo.columnName)}){
+this.${nameUtils.getPropertyName($columnInfo.columnName)} = ${nameUtils.getPropertyName($columnInfo.columnName)};
+}
+    #if($nameUtils.isPrice($columnInfo))
+    public Double get${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}Original(){
+    return ${nameUtils.getPropertyName($columnInfo.columnName)}!=null ? new java.math.BigDecimal(${nameUtils.getPropertyName($columnInfo.columnName)}).divide(new java.math.BigDecimal("100"), 2, java.math.BigDecimal.ROUND_HALF_UP).doubleValue() : null;
+    }
+    public void set${nameUtils.getMethodNameSuffixFromColumnName($columnInfo.columnName)}Original(Double p){
+    this.${nameUtils.getPropertyName($columnInfo.columnName)} = p!=null ? new java.math.BigDecimal(p).setScale(2, java.math.BigDecimal.ROUND_HALF_UP).multiply(new java.math.BigDecimal("100")).longValue() : null;
+    }
+    #end
+#end
+}
